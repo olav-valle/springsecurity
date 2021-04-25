@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import static no.ovalle.springsecurity.security.ApplicationUserPermission.COURSE_WRITE;
 import static no.ovalle.springsecurity.security.ApplicationUserRole.*;
@@ -33,26 +34,36 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         //specifies that any request (i.e. all requests) must be authenticated.
         http
-                // todo: learn this later
-                .csrf().disable()
+                .csrf()
+                // we disable csrf, since this service is a backend API for machines.
+                // enable this if the service is browser based and user-facing,
+                // by swapping around which of the next two lines is commented:
+                .disable()
+                //.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
+
                 // Require authorization for a request to any path...
                 .authorizeRequests()
+
                 // except those paths specified here:
                 .antMatchers("/", "/index.html", "/css/*", "/js/*").permitAll()
+
                 // While all requests to /api/** must have role == STUDENT
                 .antMatchers("/api/**").hasRole(STUDENT.name())
+
                 // These matchers are replaced by @PreAuth annotation at the method level
 //                .antMatchers(HttpMethod.DELETE, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
 //                .antMatchers(HttpMethod.POST, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
 //                .antMatchers(HttpMethod.PUT, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
 //                .antMatchers(HttpMethod.GET, "/management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name())
+
                 // Any other request to any other path...
                 .anyRequest()
+
                 // must be authenticated...
                 .authenticated()
-                .and()
+
                 // using basic authentication.
-                .httpBasic();
+                .and().httpBasic();
     }
 
     @Override
