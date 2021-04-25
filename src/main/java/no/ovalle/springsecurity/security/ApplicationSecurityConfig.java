@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+import static no.ovalle.springsecurity.security.ApplicationUserRole.*;
+
 @Configuration
 @EnableWebSecurity
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -46,18 +48,29 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     //this is where we retrieve/add our users in the user_DB
     protected UserDetailsService userDetailsService() {
         // We create users with a UserDetails builder
+
+        // STUDENT user
         UserDetails annaSmithUser = User
                 .builder()
                 .username("annasmith")
                 // we must encode the password, so it's not clear text.
                 // we use BCrypt, see PasswordConfig.
                 .password(passwordEncoder.encode("password"))
-                .roles("STUDENT") // ROLE_STUDENT, used by Spring Security to handle authorisation
+                .roles(STUDENT.name()) // ROLE_STUDENT, used by Spring Security to handle authorisation
                 .build();
+
+        // ADMIN user
+        UserDetails lindaUser = User
+                .builder()
+                .username("linda")
+                .password(passwordEncoder.encode("123"))
+                .roles(ADMIN.name())
+                .build();
+
 
         // make a RAM DB of our user(s)
         return new InMemoryUserDetailsManager(
-                annaSmithUser
+                annaSmithUser, lindaUser
         );
     }
 }
