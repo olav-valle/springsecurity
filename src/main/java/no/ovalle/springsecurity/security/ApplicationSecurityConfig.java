@@ -50,6 +50,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     protected UserDetailsService userDetailsService() {
         // We create users with a UserDetails builder
 
+        // Roles are defined in ApplicationUserRoles enum
+
         // STUDENT user
         UserDetails annaSmithUser = User
                 .builder()
@@ -68,10 +70,20 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .roles(ADMIN.name())
                 .build();
 
+        // ADMINTRAINEE user = read only
+        UserDetails tomUser = User
+                .builder()
+                .username("tom")
+                .password(passwordEncoder.encode("123"))
+                .roles(ADMINTRAINEE.name())
+                .build();
+
 
         // make a RAM DB of our user(s)
         return new InMemoryUserDetailsManager(
-                annaSmithUser, lindaUser
+                annaSmithUser,
+                lindaUser,
+                tomUser
         );
     }
 }
