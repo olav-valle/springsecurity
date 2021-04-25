@@ -3,7 +3,6 @@ package no.ovalle.springsecurity.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,9 +12,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
-import static no.ovalle.springsecurity.security.ApplicationUserPermission.COURSE_WRITE;
+import java.util.concurrent.TimeUnit;
+
 import static no.ovalle.springsecurity.security.ApplicationUserRole.*;
 
 @Configuration
@@ -62,8 +61,31 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 // must be authenticated...
                 .authenticated()
 
-                // using basic authentication.
-                .and().httpBasic();
+                // using form based authentication.
+                .and()
+                .formLogin()
+                    .loginPage("/login").permitAll()
+                    // and redirect to "/courses" upon successful login
+                    .defaultSuccessUrl("/courses", true)
+                    // set custom username and password field parameter names
+                    // which must then be used in the login form as well
+                    .passwordParameter("password")
+                    .usernameParameter("username")
+                .and()
+                // Remember user login...
+                .rememberMe()
+                    // for 21 days.
+                    .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21))
+                    .key("somethingReallySecure...")
+                    // we can set a custom remember-me parameter name
+                    .rememberMeParameter("remember-me")
+                .and()
+                .logout()
+                    .logoutUrl("/logout")
+                    .clearAuthentication(true)
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID", "remember-me")
+                    .logoutSuccessUrl("/");
     }
 
     @Override
