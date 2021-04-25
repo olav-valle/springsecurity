@@ -1,13 +1,27 @@
 package no.ovalle.springsecurity.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
 @EnableWebSecurity
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public ApplicationSecurityConfig(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -25,7 +39,25 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 // using basic authentication.
                 .httpBasic();
-
     }
 
+    @Override
+    @Bean
+    //this is where we retrieve/add our users in the user_DB
+    protected UserDetailsService userDetailsService() {
+        // We create users with a UserDetails builder
+        UserDetails annaSmithUser = User
+                .builder()
+                .username("annasmith")
+                // we must encode the password, so it's not clear text.
+                // we use BCrypt, see PasswordConfig.
+                .password(passwordEncoder.encode("password"))
+                .roles("STUDENT") // ROLE_STUDENT, used by Spring Security to handle authorisation
+                .build();
+
+        // make a RAM DB of our user(s)
+        return new InMemoryUserDetailsManager(
+                annaSmithUser
+        );
+    }
 }
