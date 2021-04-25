@@ -3,6 +3,7 @@ package no.ovalle.springsecurity.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+import static no.ovalle.springsecurity.security.ApplicationUserPermission.COURSE_WRITE;
 import static no.ovalle.springsecurity.security.ApplicationUserRole.*;
 
 @Configuration
@@ -37,6 +39,10 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/", "/index.html", "/css/*", "/js/*").permitAll()
                 // While all requests to /api/** must have role == STUDENT
                 .antMatchers("/api/**").hasRole(STUDENT.name())
+                .antMatchers(HttpMethod.DELETE, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
+                .antMatchers(HttpMethod.POST, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
+                .antMatchers(HttpMethod.PUT, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
+                .antMatchers(HttpMethod.GET, "/management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name())
                 // Any other request to any other path...
                 .anyRequest()
                 // must be authenticated...
@@ -61,7 +67,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 // we must encode the password, so it's not clear text.
                 // we use BCrypt, see PasswordConfig.
                 .password(passwordEncoder.encode("password"))
-                .roles(STUDENT.name()) // ROLE_STUDENT, used by Spring Security to handle authorisation
+//                .roles(STUDENT.name()) // ROLE_STUDENT, used by Spring Security to handle authorisation
+                .authorities(STUDENT.getGrantedAuthorities())
                 .build();
 
         // ADMIN user
@@ -69,7 +76,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .builder()
                 .username("linda")
                 .password(passwordEncoder.encode("123"))
-                .roles(ADMIN.name())
+//                .roles(ADMIN.name())
+                .authorities(ADMIN.getGrantedAuthorities())
                 .build();
 
         // ADMINTRAINEE user = read only
@@ -77,7 +85,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .builder()
                 .username("tom")
                 .password(passwordEncoder.encode("123"))
-                .roles(ADMINTRAINEE.name())
+//                .roles(ADMINTRAINEE.name())
+                .authorities(ADMINTRAINEE.getGrantedAuthorities())
                 .build();
 
 

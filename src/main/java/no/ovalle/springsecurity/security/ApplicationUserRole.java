@@ -2,8 +2,11 @@ package no.ovalle.springsecurity.security;
 
 
 import com.google.common.collect.Sets;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static no.ovalle.springsecurity.security.ApplicationUserPermission.*;
 
@@ -20,5 +23,18 @@ public enum ApplicationUserRole {
 
     public Set<ApplicationUserPermission> getPermissions() {
         return permissions;
+    }
+
+    public Set<SimpleGrantedAuthority> getGrantedAuthorities() {
+        // Extract permission description string from each ApplicationUserPermission enum,
+        // and create a SimpleGrantedAuthority for it.
+        Set<SimpleGrantedAuthority> permissions = getPermissions().stream()
+                .map(p -> new SimpleGrantedAuthority(p.getPermission()))
+                .collect(Collectors.toSet());
+
+        // Add SimpleGrantedAuthority for "ROLE_NAME" string to set
+         permissions.add(new SimpleGrantedAuthority("ROLE_" + this.name()));
+
+         return permissions;
     }
 }
