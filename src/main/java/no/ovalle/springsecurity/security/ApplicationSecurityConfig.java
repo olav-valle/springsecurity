@@ -29,6 +29,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         //specifies that any request (i.e. all requests) must be authenticated.
         http
+                // todo: learn this later
+                .csrf().disable()
                 // Require authorization for a request to any path...
                 .authorizeRequests()
                 // except those paths specified here:
