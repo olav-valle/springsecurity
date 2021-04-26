@@ -95,6 +95,13 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         // We create users with a UserDetails builder
 
         // Roles are defined in ApplicationUserRoles enum
+        // by using authorities(ROLE.getGrantedAuthorities())
+        // we can use both the hasRole("ROLE") and hasAuthority('auth:type')
+        // access expressions in method level @PreAuthorize annotations.
+
+        // However, the reverse, i.e. using roles(ROLE.name()), does not seem to grant
+        // a user the authorities associated with a ROLE, which means we cannot use
+        // hasAuthority('auth:type') annotations, but only hasRole().
 
         // STUDENT user
         UserDetails annaSmithUser = User
