@@ -26,4 +26,5 @@ public class ApplicationUserService implements UserDetailsService {
                 .selectApplicationUserByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User with name " + username + " not found."));
     }
+
 }
