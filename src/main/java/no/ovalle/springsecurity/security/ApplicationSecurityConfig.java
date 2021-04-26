@@ -24,7 +24,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired private final ApplicationUserService applicationUserService;
+    @Autowired
+    private final ApplicationUserService applicationUserService;
 
     @Autowired
     public ApplicationSecurityConfig(PasswordEncoder passwordEncoder, ApplicationUserService applicationUserService) {
@@ -67,29 +68,36 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 // using form based authentication.
                 .and()
                 .formLogin()
-                    .loginPage("/login").permitAll()
-                    // and redirect to "/courses" upon successful login
-                    .defaultSuccessUrl("/courses", true)
-                    // set custom username and password field parameter names
-                    // which must then be used in the login form as well
-                    .passwordParameter("password")
-                    .usernameParameter("username")
+                .loginPage("/login").permitAll()
+                // and redirect to "/courses" upon successful login
+                .defaultSuccessUrl("/courses", true)
+                // set custom username and password field parameter names
+                // which must then be used in the login form as well
+                .passwordParameter("password")
+                .usernameParameter("username")
                 .and()
+
+                // FIXME: 26/04/2021 FUUUUUUUUUUUUU
+                //  why does this break the app on pascaline, but not lovelace?!
+                //  OR MAYBE IT DOESNT WHO CARES LOL BAI
+
                 // Remember user login...
                 .rememberMe()
                     // for 21 days.
                     .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21))
                     .key("somethingReallySecure...")
+                    .userDetailsService(applicationUserService)
                     // we can set a custom remember-me parameter name
                     .rememberMeParameter("remember-me")
                 .and()
+
                 .logout()
-                    .logoutUrl("/logout")
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-                    .clearAuthentication(true)
-                    .invalidateHttpSession(true)
-                    .deleteCookies("JSESSIONID", "remember-me")
-                    .logoutSuccessUrl("/");
+                .logoutUrl("/logout")
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+                .clearAuthentication(true)
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID", "remember-me")
+                .logoutSuccessUrl("/");
     }
 
     @Override
