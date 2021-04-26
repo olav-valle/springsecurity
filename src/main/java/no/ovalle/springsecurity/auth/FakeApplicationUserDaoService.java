@@ -10,8 +10,20 @@ import java.util.Optional;
 
 import static no.ovalle.springsecurity.security.ApplicationUserRole.*;
 
+/**
+ * This is the Data Access Object service.
+ * It implements CRUD functionality, and helper methods,
+ * for interacting with and handling ApplicationUser objects.
+ *
+ * This is a "fake" repo, in that it's not actually connected to a DB of any kind.
+ * It simply contains hardcoded ApplicationUser objects, which it creates as a list.
+ *
+ * The reason this is useful, is as an example of how implementing the ApplicationUserDAO interface
+ * should be used to keep the persistence layer separated from the application layer logic.
+ */
+
 @Repository("fake")
-public class FakeApplicationUserDaoService implements ApplicationUserDAO {
+public class FakeApplicationUserDaoService implements ApplicationUserDao {
 
     private final PasswordEncoder passwordEncoder;
 
@@ -22,7 +34,8 @@ public class FakeApplicationUserDaoService implements ApplicationUserDAO {
 
     @Override
     public Optional<ApplicationUser> selectApplicationUserByUsername(String username) {
-        return getApplicationUsers().stream()
+        return getApplicationUsers()
+                .stream()
                 .filter(appUser -> username.equals(appUser.getUsername()))
                 .findFirst();
     }
